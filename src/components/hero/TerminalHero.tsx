@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import './terminal.css';
 
 export interface TerminalLine {
   text: string;
@@ -25,8 +24,7 @@ export function TerminalHero({ title = "Building systems, not apps", subtitle }:
   ];
 
   useEffect(() => {
-    const delays = terminalLines.map(l => l.delay || 0);
-    let timeouts: NodeJS.Timeout[] = [];
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
 
     terminalLines.forEach((line, index) => {
       if (line.delay) {
@@ -67,7 +65,7 @@ export function TerminalHero({ title = "Building systems, not apps", subtitle }:
       <h1 className="display">{title}</h1>
       {subtitle && <p>{subtitle}</p>}
 
-      <div className="cta-row reveal">
+      <div className="cta-row reveal active">
         <a href="/work" className="btn btn-primary">VIEW WORK</a>
         <a href="/about" className="btn btn-secondary">EXPLORE THE LAB</a>
       </div>

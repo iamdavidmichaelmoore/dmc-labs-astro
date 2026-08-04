@@ -12,8 +12,13 @@ dist-ssr/
 *.local
 
 # Astro
+.astro/
 astro.config.mjs
 out/
+
+# Playwright
+test-results/
+playwright-report/
 
 # Misc
 .DS_Store

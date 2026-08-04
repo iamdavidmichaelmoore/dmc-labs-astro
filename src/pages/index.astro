@@ -1,7 +1,7 @@
 ---
 import { MainLayout } from '../components/layout/MainLayout';
 import { TerminalHero } from '../components/hero/TerminalHero';
-import { WireframeGrid } from '../components/features/WireframeGrid';
+import '../styles/global.css';
 ---
 
 <html lang="en">
@@ -9,12 +9,11 @@ import { WireframeGrid } from '../components/features/WireframeGrid';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DMC Labs — Building systems, not apps</title>
-    <link rel="stylesheet" href="/src/styles/global.css" />
   </head>
   <body>
     <MainLayout title="DMC Labs — Building systems, not apps">
-      <TerminalHero />
-      <section id="content" class="reveal">
+      <TerminalHero client:load />
+      <section id="content" class="reveal active">
         <h1>Welcome to the Lab</h1>
         <p>Experimental AI research in natural language processing, multimodal reasoning, and human-AI collaboration.</p>
       </section>

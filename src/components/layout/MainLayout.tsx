@@ -1,7 +1,13 @@
 import { Main } from './Main';
-import { WireframeNav } from './WireframeNav';
+import { type NavItem, WireframeNav } from './WireframeNav';
 import { WireframeFooter } from './WireframeFooter';
 import { WireframeGrid } from '../features/WireframeGrid';
+
+const navigationItems: NavItem[] = [
+  { label: 'Work', href: '/work' },
+  { label: 'About', href: '/about' },
+  { label: 'Log', href: '/blog' },
+];
 
 interface MainLayoutProps {
   title: string;
@@ -12,7 +18,7 @@ export function MainLayout({ title, children }: MainLayoutProps) {
   return (
     <Main className="main-wrapper">
       <WireframeGrid />
-      <WireframeNav />
+      <WireframeNav items={navigationItems} />
       <div className="main-content">
         <div className="meta-bar">
           <ComponentMeta title={title} />
@@ -30,11 +36,13 @@ interface ComponentMetaProps {
 
 function ComponentMeta({ title }: ComponentMetaProps) {
   return (
-    <div className="meta-bar-content">
+    <nav className="meta-bar-content" aria-label={`${title} navigation`}>
       <a href="/" className="logo">DMC LABS</a>
-      <a href="/work" className="meta-link">WORK</a>
-      <a href="/about" className="meta-link">ABOUT</a>
-      <a href="/blog" className="meta-link">LOG</a>
-    </div>
+      {navigationItems.map(item => (
+        <a key={item.href} href={item.href} className="meta-link">
+          {item.label.toUpperCase()}
+        </a>
+      ))}
+    </nav>
   );
 }

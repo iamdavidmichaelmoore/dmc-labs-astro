@@ -5,10 +5,18 @@ export interface NavItem {
 }
 
 interface WireframeNavProps {
-  items: NavItem[];
+  items?: NavItem[];
 }
 
-export function WireframeNav({ items }: WireframeNavProps) {
+export function WireframeNav({ items = [] }: WireframeNavProps) {
+  if (items.length === 0) {
+    return (
+      <nav className="nav">
+        <a href="/" className="logo">DMC LABS</a>
+      </nav>
+    );
+  }
+
   return (
     <nav className="nav">
       <a href="/" className="logo">DMC LABS</a>
