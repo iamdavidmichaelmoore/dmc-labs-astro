@@ -1,0 +1,56 @@
+<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to light theme">
+  <span aria-hidden="true">◐</span>
+</button>
+
+<script>
+  const storageKey = 'dmc-labs-theme';
+
+  function preferredTheme(): 'light' | 'dark' {
+    const storedTheme = localStorage.getItem(storageKey);
+    return storedTheme === 'light' || storedTheme === 'dark'
+      ? storedTheme
+      : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme: 'light' | 'dark') {
+    document.documentElement.dataset.theme = theme;
+    const button = document.querySelector<HTMLButtonElement>('#theme-toggle');
+    if (button) {
+      button.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);
+      button.setAttribute('aria-pressed', String(theme === 'dark'));
+    }
+  }
+
+  function setupThemeToggle() {
+    const button = document.querySelector<HTMLButtonElement>('#theme-toggle');
+    if (!button || button.dataset.themeReady === 'true') return;
+
+    document.querySelector('nav')?.append(button);
+    applyTheme(preferredTheme());
+    button.dataset.themeReady = 'true';
+    button.addEventListener('click', () => {
+      const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(storageKey, nextTheme);
+      applyTheme(nextTheme);
+    });
+  }
+
+  function updateNavigationState() {
+    document.querySelector('nav')?.classList.toggle('nav-scrolled', window.scrollY > 24);
+  }
+
+  setupThemeToggle();
+  updateNavigationState();
+  if (document.documentElement.dataset.navScrollReady !== 'true') {
+    document.documentElement.dataset.navScrollReady = 'true';
+    window.addEventListener('scroll', updateNavigationState, { passive: true });
+  }
+  document.addEventListener('astro:after-swap', () => applyTheme(preferredTheme()));
+  document.addEventListener('astro:page-load', () => {
+    setupThemeToggle();
+    updateNavigationState();
+  });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+    if (!localStorage.getItem(storageKey)) applyTheme(event.matches ? 'dark' : 'light');
+  });
+</script>

@@ -1,0 +1,47 @@
+---
+interface Props {
+  items: { id: string; label: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="article-toc" aria-label="Article sections" data-article-toc>
+  <span class="toc-label">ARTICLE INDEX</span>
+  {items.map((item, index) => (
+    <a href={`#${item.id}`} class:list={{ active: index === 0 }} data-toc-target={item.id}>
+      {item.label}
+    </a>
+  ))}
+</nav>
+
+<script>
+  function setupArticleTocs() {
+    document.querySelectorAll<HTMLElement>('[data-article-toc]').forEach(toc => {
+      if (toc.dataset.ready === 'true') return;
+
+      toc.dataset.ready = 'true';
+      const links = [...toc.querySelectorAll<HTMLAnchorElement>('[data-toc-target]')];
+      const headings = links
+        .map(link => ({ link, heading: document.getElementById(link.dataset.tocTarget ?? '') }))
+        .filter((entry): entry is { link: HTMLAnchorElement; heading: HTMLElement } => Boolean(entry.heading));
+
+      const updateActiveLink = () => {
+        const offset = window.innerHeight * 0.55;
+        const active = headings.reduce((current, entry) =>
+          entry.heading.getBoundingClientRect().top <= offset ? entry : current,
+        headings[0]);
+
+        if (!active) return;
+        links.forEach(link => link.classList.toggle('active', link === active.link));
+      };
+
+      updateActiveLink();
+      window.addEventListener('scroll', updateActiveLink, { passive: true });
+      window.addEventListener('resize', updateActiveLink);
+    });
+  }
+
+  setupArticleTocs();
+  document.addEventListener('astro:page-load', setupArticleTocs);
+</script>

@@ -1,5 +1,10 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import { MainLayout } from '../components/layout/MainLayout';
+import { ExperienceLayer } from '../components/features/ExperienceLayer';
+import ThemeInit from '../components/theme/ThemeInit.astro';
+import ThemeToggle from '../components/theme/ThemeToggle.astro';
+import { focusAreas, milestones } from '../data/site';
 import '../styles/global.css';
 ---
 
@@ -8,16 +13,56 @@ import '../styles/global.css';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>About | DMC Labs</title>
+    <ThemeInit />
+    <ClientRouter />
   </head>
   <body>
-    <MainLayout title="About | DMC Labs">
-      <section class="hero">
-        <h1 class="display">About DMC Labs</h1>
-        <p>DMC Labs is an experimental research practice for building thoughtful AI systems.</p>
-        <div class="cta-row">
-          <a href="/" class="btn btn-secondary">RETURN HOME</a>
+    <MainLayout title="The Lab | DMC Labs" activePath="/about">
+      <section class="page-section mx-auto max-w-300 py-30 max-md:pt-25" data-reveal data-section="THE LAB">
+        <div class="page-header mx-auto mb-15 max-w-155 text-center">
+          <h1>THE LAB</h1>
+          <p>Experimental, open, and committed to transparency.</p>
+        </div>
+        <div id="story" class="split grid grid-cols-2 items-center gap-15 max-md:grid-cols-1">
+          <div class="photo-placeholder grid aspect-square place-items-center border border-[var(--surface-border)] bg-[var(--surface)]" aria-hidden="true">
+            <span>DMC LABS</span>
+          </div>
+          <div class="about-text">
+            <h2>Mission</h2>
+            <p>DMC Labs is an independent AI research lab founded by David Moore. We believe the future of AI is not just about building bigger models, but about creating tools, systems, and interfaces that make AI more accessible, transparent, and useful for real work.</p>
+            <p>Our work is characterized by a focus on reproducibility, open source where appropriate, and practical applications that solve real problems. We are based in San Francisco and collaborate with researchers worldwide.</p>
+          </div>
+        </div>
+        <div id="focus" class="content-section mt-24" data-reveal data-section="FOCUS AREAS">
+          <h2 class="section-heading">Areas of Focus</h2>
+          <p class="section-sub">Research directions and technical interests.</p>
+          <div class="focus-list mt-6 grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-5">
+            {focusAreas.map(area => (
+              <article class="focus-item border border-[var(--surface-border)] bg-[var(--surface)] p-6">
+                <h3>{area.title}</h3>
+                <p>{area.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+        <div id="timeline" class="content-section mt-24" data-reveal data-section="TIMELINE">
+          <h2 class="section-heading">How It Started</h2>
+          <p class="section-sub">A brief timeline of key milestones.</p>
+          <div class="timeline mt-6">
+            {milestones.map(milestone => (
+              <article class="timeline-item grid grid-cols-[6.25rem_1fr] gap-6 border-b border-[var(--surface-border)] py-6 max-md:grid-cols-1">
+                <div class="timeline-year">{milestone.year}</div>
+                <div class="timeline-body">
+                  <h3>{milestone.title}</h3>
+                  <p>{milestone.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
     </MainLayout>
+    <ExperienceLayer client:load />
+    <ThemeToggle />
   </body>
 </html>

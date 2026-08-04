@@ -15,10 +15,9 @@ import { MainLayout } from '../components/layout/MainLayout';
 ```
 
 **Features:**
-- Fixed wireframe grid in background
-- Sticky navigation bar
-- Sticky meta bar (logo + links)
-- Wireframe footer
+- Ambient illumination background
+- Fixed navigation with rich flyouts
+- Theme-aware footer
 
 ---
 
@@ -43,15 +42,6 @@ interface NavItem {
 - Email
 - GitHub
 - Twitter
-
----
-
-## Feature Components
-
-### WireframeGrid
-**Purpose:** Fixed wireframe grid background
-
-**Note:** Can be hidden on specific pages if needed
 
 ---
 

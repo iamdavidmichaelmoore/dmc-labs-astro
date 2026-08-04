@@ -1,5 +1,11 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import { MainLayout } from '../components/layout/MainLayout';
+import { ExperienceLayer } from '../components/features/ExperienceLayer';
+import ThemeInit from '../components/theme/ThemeInit.astro';
+import ThemeToggle from '../components/theme/ThemeToggle.astro';
+import WorkFilter from '../components/work/WorkFilter.astro';
+import { works } from '../data/site';
 import '../styles/global.css';
 ---
 
@@ -8,16 +14,20 @@ import '../styles/global.css';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Work | DMC Labs</title>
+    <ThemeInit />
+    <ClientRouter />
   </head>
   <body>
-    <MainLayout title="Work | DMC Labs">
-      <section class="hero">
-        <h1 class="display">Selected work</h1>
-        <p>Research systems designed for natural language, multimodal reasoning, and human-AI collaboration.</p>
-        <div class="cta-row">
-          <a href="/" class="btn btn-secondary">RETURN HOME</a>
+    <MainLayout title="Work | DMC Labs" activePath="/work">
+      <section class="page-section mx-auto max-w-300 py-30 max-md:pt-25" data-reveal data-section="WORK">
+        <div class="page-header mx-auto mb-15 max-w-155 text-center">
+          <h1>WORK</h1>
+          <p>Systems, tools, and research outputs from the lab.</p>
         </div>
+        <WorkFilter works={works} />
       </section>
     </MainLayout>
+    <ExperienceLayer client:load />
+    <ThemeToggle />
   </body>
 </html>

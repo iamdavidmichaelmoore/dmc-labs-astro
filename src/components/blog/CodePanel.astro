@@ -1,0 +1,78 @@
+---
+import { codeToHtml, type BundledLanguage } from 'shiki';
+
+interface Props {
+  code: string;
+  language?: string;
+  title: string;
+}
+
+const { code, language = 'text', title } = Astro.props;
+const highlightedCode = await codeToHtml(code, {
+  lang: language as BundledLanguage,
+  themes: {
+    light: {
+      name: 'dmc-light',
+      type: 'light',
+      colors: {
+        'editor.background': '#fffaf5',
+        'editor.foreground': '#302a24',
+      },
+      tokenColors: [
+        { scope: ['comment'], settings: { foreground: '#918972' } },
+        { scope: ['string', 'constant.numeric', 'constant.language'], settings: { foreground: '#d9ab4b' } },
+        { scope: ['keyword', 'storage', 'keyword.control'], settings: { foreground: '#d96e64' } },
+        { scope: ['entity.name.function', 'support.function', 'entity.name.type', 'support.type'], settings: { foreground: '#4db356' } },
+      ],
+    },
+    dark: {
+      name: 'dmc-dark',
+      type: 'dark',
+      colors: {
+        'editor.background': '#1d1a14',
+        'editor.foreground': '#f8f3ed',
+      },
+      tokenColors: [
+        { scope: ['comment'], settings: { foreground: '#938f85' } },
+        { scope: ['string', 'constant.numeric', 'constant.language'], settings: { foreground: '#ffbd2f' } },
+        { scope: ['keyword', 'storage', 'keyword.control'], settings: { foreground: '#ff5f56' } },
+        { scope: ['entity.name.function', 'support.function', 'entity.name.type', 'support.type'], settings: { foreground: '#29c940' } },
+      ],
+    },
+  },
+  defaultColor: false,
+});
+---
+
+<figure class="code-panel" data-code-panel>
+  <figcaption>
+    <span>{title}</span>
+    <button type="button" aria-label={`Copy ${title}`} data-copy-code>Copy</button>
+  </figcaption>
+  <Fragment set:html={highlightedCode} />
+</figure>
+
+<script>
+  function setupCodePanels() {
+    document.querySelectorAll<HTMLElement>('[data-code-panel]').forEach(panel => {
+      if (panel.dataset.ready === 'true') return;
+
+      panel.dataset.ready = 'true';
+      const button = panel.querySelector<HTMLButtonElement>('[data-copy-code]');
+      const code = panel.querySelector('code');
+      if (!button || !code) return;
+
+      button.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(code.textContent ?? '');
+        const original = button.textContent;
+        button.textContent = 'Copied';
+        window.setTimeout(() => {
+          button.textContent = original;
+        }, 1_500);
+      });
+    });
+  }
+
+  setupCodePanels();
+  document.addEventListener('astro:page-load', setupCodePanels);
+</script>

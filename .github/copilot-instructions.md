@@ -20,18 +20,18 @@ There is currently no configured test runner, single-test command, linter, or st
 ## Architecture
 
 - This is a static Astro site with the React integration enabled in `astro.config.mjs`. Routes belong in `src/pages/`; the current home route is `src/pages/index.astro`.
-- Pages compose React UI components. `MainLayout` is the site shell: it renders `Main`, `WireframeGrid`, `WireframeNav`, a meta bar, page content, and `WireframeFooter`. Reuse it for full pages so the fixed grid, navigation, and footer stay consistent.
+- Pages compose React UI components. `MainLayout` is the site shell: it renders `Main`, `WireframeNav`, page content, and `WireframeFooter`. Reuse it for full pages so navigation and footer stay consistent.
 - `TerminalHero` is the signature interactive hero. It owns its ordered terminal-line data and uses `useEffect` timers to reveal the lines; its optional `title` and `subtitle` only customize the surrounding copy. Keep timer cleanup intact when changing that effect.
 - `src/types/hero.ts` contains the shareable terminal types. Keep component props and shared type definitions aligned if the hero's data model changes.
 
 ## Styling and UI conventions
 
-- Preserve the wireframe system: dark `--bg-color` surfaces, one green `--accent` (`#a0ff85`), monospace display/utility type, hard borders, and no gradients or glassmorphism. Define/reuse tokens in `src/styles/global.css` rather than introducing parallel color or font values.
-- `global.css` owns reset styles, layout primitives, navigation/footer, buttons, the fixed `.bg-grid`, responsive behavior, focus treatment, and reduced-motion overrides. `terminal.css` owns the terminal-specific classes and animations. Ensure both stylesheets are loaded for pages that render `TerminalHero`.
-- Keep the named primitives and class contracts when extending the site: `MainLayout`/`Main` for shell structure, `WireframeGrid` for the background, `.btn` plus `.btn-primary` or `.btn-secondary` for calls to action, and `.grid`/`.card` for content collections.
+- Preserve the system: dark or warm-light tokenized surfaces, a green accent, monospace display/utility type, hard borders, and restrained glass panels. Reuse the existing theme tokens rather than introducing parallel colors or font values.
+- Tailwind v4 is configured through the Astro/Vite plugin; use responsive and theme-aware utilities for component styling. `global.css` holds shared tokens and behavior while `terminal.css` owns terminal-specific animation classes.
+- Keep the named primitives and class contracts when extending the site: `MainLayout`/`Main` for shell structure, `.btn` plus `.btn-primary` or `.btn-secondary` for calls to action, and `.grid`/`.card` for content collections.
 - Navigation is represented as `NavItem` objects (`label`, `href`, optional `active`) and `WireframeNav` uppercases labels when rendering. External footer links must retain `target="_blank"` with `rel="noopener noreferrer"`.
 - Use the existing `@media (prefers-reduced-motion: reduce)` treatment for new animation or transition work. The terminal's line delays are deliberately staged, so preserve their reveal order and timing intent.
 
 ## Current scope
 
-- The tracked site currently has one implemented page. Documentation references future work, about, and blog components/routes, but those components are not present yet; add the route/component together when implementing one of those areas.
+- The site implements Home, Work, The Lab, the research log, and a static research-note route. Content data lives in `src/data/site.ts`.

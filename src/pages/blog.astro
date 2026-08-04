@@ -1,5 +1,10 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import { MainLayout } from '../components/layout/MainLayout';
+import { ExperienceLayer } from '../components/features/ExperienceLayer';
+import ThemeInit from '../components/theme/ThemeInit.astro';
+import ThemeToggle from '../components/theme/ThemeToggle.astro';
+import { posts } from '../data/site';
 import '../styles/global.css';
 ---
 
@@ -8,16 +13,35 @@ import '../styles/global.css';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Research Log | DMC Labs</title>
+    <ThemeInit />
+    <ClientRouter />
   </head>
   <body>
-    <MainLayout title="Research Log | DMC Labs">
-      <section class="hero">
-        <h1 class="display">Research log</h1>
-        <p>Notes and experiments from the lab.</p>
-        <div class="cta-row">
-          <a href="/" class="btn btn-secondary">RETURN HOME</a>
+    <MainLayout title="Log | DMC Labs" activePath="/blog">
+      <section class="page-section mx-auto max-w-300 py-30 max-md:pt-25" data-reveal data-section="RESEARCH LOG">
+        <div class="page-header mx-auto mb-15 max-w-155 text-center">
+          <h1>LOG</h1>
+          <p>Research notes, experiments, and occasional thoughts.</p>
+        </div>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(18.75rem,1fr))] gap-6 max-md:grid-cols-1">
+          {posts.map(post => (
+            <article class="card border border-[var(--surface-border)] bg-[var(--surface)] p-8 transition-colors hover:border-[var(--accent)] hover:bg-[var(--surface-elevated)]">
+              <div class="card-meta">{post.date}</div>
+              <h2>
+                {post.slug ? (
+                  <a href={`/blog/${post.slug}`} class="text-[var(--text-primary)] no-underline transition-colors hover:text-[var(--accent)]">
+                    {post.title}
+                  </a>
+                ) : post.title}
+              </h2>
+              <p>{post.description}</p>
+              {post.slug && <a href={`/blog/${post.slug}`} class="read-more">READ MORE <span aria-hidden="true">→</span></a>}
+            </article>
+          ))}
         </div>
       </section>
     </MainLayout>
+    <ExperienceLayer client:load />
+    <ThemeToggle />
   </body>
 </html>

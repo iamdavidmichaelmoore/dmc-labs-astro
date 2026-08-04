@@ -19,6 +19,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@playwright/test": "^1.62.1",
+    "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.3",
@@ -26,6 +27,8 @@
     "@vitejs/plugin-react": "^6.0.5",
     "astro": "^7.1.6",
     "jsdom": "^30.0.1",
+    "shiki": "^4.4.1",
+    "tailwindcss": "^4.3.3",
     "vitest": "^4.1.10"
   }
 }

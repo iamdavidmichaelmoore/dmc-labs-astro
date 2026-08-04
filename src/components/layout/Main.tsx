@@ -1,10 +1,11 @@
 interface MainProps {
   children: React.ReactNode;
   className?: string;
+  ariaLabel?: string;
 }
 
-export function Main({ children, className = '' }: MainProps) {
+export function Main({ children, className = '', ariaLabel }: MainProps) {
   return (
-    <main className={`main ${className}`}>{children}</main>
+    <main className={`main ${className}`} aria-label={ariaLabel}>{children}</main>
   );
 }

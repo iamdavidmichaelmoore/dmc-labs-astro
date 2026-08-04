@@ -1,0 +1,7 @@
+<script is:inline>
+  (() => {
+    const storedTheme = localStorage.getItem('dmc-labs-theme');
+    const theme = storedTheme ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.dataset.theme = theme;
+  })();
+</script>

@@ -1,48 +1,34 @@
 import { Main } from './Main';
 import { type NavItem, WireframeNav } from './WireframeNav';
 import { WireframeFooter } from './WireframeFooter';
-import { WireframeGrid } from '../features/WireframeGrid';
 
 const navigationItems: NavItem[] = [
+  { label: 'Home', href: '/' },
+  { label: 'The Lab', href: '/about' },
   { label: 'Work', href: '/work' },
-  { label: 'About', href: '/about' },
   { label: 'Log', href: '/blog' },
+  { label: 'Contact', href: '#contact' },
 ];
 
 interface MainLayoutProps {
   title: string;
   children: React.ReactNode;
+  activePath?: string;
 }
 
-export function MainLayout({ title, children }: MainLayoutProps) {
+export function MainLayout({ title, children, activePath }: MainLayoutProps) {
+  const activeNavigationItems = navigationItems.map(item => ({
+    ...item,
+    active: item.href === activePath,
+  }));
+
   return (
-    <Main className="main-wrapper">
-      <WireframeGrid />
-      <WireframeNav items={navigationItems} />
+    <Main className="main-wrapper" ariaLabel={title}>
+      <WireframeNav items={activeNavigationItems} />
       <div className="main-content">
-        <div className="meta-bar">
-          <ComponentMeta title={title} />
-        </div>
         {children}
       </div>
       <WireframeFooter />
     </Main>
-  );
-}
-
-interface ComponentMetaProps {
-  title: string;
-}
-
-function ComponentMeta({ title }: ComponentMetaProps) {
-  return (
-    <nav className="meta-bar-content" aria-label={`${title} navigation`}>
-      <a href="/" className="logo">DMC LABS</a>
-      {navigationItems.map(item => (
-        <a key={item.href} href={item.href} className="meta-link">
-          {item.label.toUpperCase()}
-        </a>
-      ))}
-    </nav>
   );
 }

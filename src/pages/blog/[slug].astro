@@ -1,0 +1,107 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { MainLayout } from '../../components/layout/MainLayout';
+import ArticleToc from '../../components/blog/ArticleToc.astro';
+import CodePanel from '../../components/blog/CodePanel.astro';
+import { ExperienceLayer } from '../../components/features/ExperienceLayer';
+import ThemeInit from '../../components/theme/ThemeInit.astro';
+import ThemeToggle from '../../components/theme/ThemeToggle.astro';
+import { posts } from '../../data/site';
+import '../../styles/global.css';
+
+export function getStaticPaths() {
+  return posts
+    .filter((post): post is typeof post & { slug: string } => Boolean(post.slug))
+    .map(post => ({
+      params: { slug: post.slug },
+      props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{post.title} | DMC Labs</title>
+    <ThemeInit />
+    <ClientRouter />
+  </head>
+  <body>
+    <MainLayout title={`${post.title} | DMC Labs`} activePath="/blog">
+      <section class="page-section mx-auto max-w-300 py-30 max-md:pt-25" data-reveal data-section="RESEARCH NOTE">
+        <article class="article-wrap mx-auto max-w-235">
+          <a href="/blog" class="back-link font-utility text-[0.8rem] text-[var(--text-secondary)] no-underline transition-colors hover:text-[var(--accent)]">← Back to log</a>
+          <header class="article-header mt-8">
+            <h1>Self-Correction in LLMs: A Research Note</h1>
+            <p class="article-meta">July 15, 2024 · Research</p>
+          </header>
+          <div class="article-reading-layout mt-12 grid grid-cols-[9.375rem_minmax(0,1fr)] gap-10 max-md:block">
+            <ArticleToc items={[
+              { id: 'problem', label: 'The problem' },
+              { id: 'approaches', label: 'Approaches' },
+              { id: 'results', label: 'Results' },
+              { id: 'observations', label: 'Observations' },
+              { id: 'next-steps', label: 'Next steps' },
+            ]} />
+            <div class="article-body min-w-0">
+            <p>LLMs make mistakes. This is obvious. But how much of those mistakes are fundamental limitations of the architecture, and how much are failures of the prompting or fine-tuning process? We set out to answer this question by testing different approaches to self-correction in language models.</p>
+            <h2 id="problem">The problem</h2>
+            <p>When you ask an LLM a question and it gives a wrong answer, you cannot just ask it again. The model does not remember its previous answer and does not have an internal notion of “I was wrong.” This is the fundamental problem: we want systems that can catch and fix their own errors, but standard language models lack that capability.</p>
+            <h2 id="approaches">Approaches we tested</h2>
+            <p>We tested three main approaches:</p>
+            <CodePanel
+              title="verifier-loop.ts"
+              language="ts"
+              code={`const draft = await model.answer(question);
+const review = await verifier.check(draft);
+const answer = review.valid
+  ? draft
+  : await model.revise(draft, review.feedback);`}
+            />
+            <ul>
+              <li><strong>Chain-of-thought prompting:</strong> Ask the model to show its reasoning before giving the final answer. This does not directly enable correction, but it makes errors more visible to the user.</li>
+              <li><strong>Iterative refinement:</strong> Ask the model to produce an initial answer, then ask it to critique and improve it. This is the most direct form of self-correction.</li>
+              <li><strong>External verifier:</strong> Use another model or a rule-based system to check the answer and ask the original model to fix any mistakes found.</li>
+            </ul>
+            <blockquote class="pull-quote">The external verifier approach was by far the most effective, but it requires another model. We need cheaper ways to do this at scale.</blockquote>
+            <h2 id="results">Results</h2>
+            <p>We tested all three approaches on arithmetic, logic, and multi-step reasoning tasks. Here is what we found:</p>
+            <div class="table-wrap overflow-x-auto">
+              <table class="backdrop-blur-xl">
+                <thead>
+                  <tr><th>Approach</th><th>Accuracy</th><th>Latency</th><th>Cost</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>None</td><td>64%</td><td>120ms</td><td>1×</td></tr>
+                  <tr><td>Chain-of-thought</td><td>71%</td><td>180ms</td><td>1×</td></tr>
+                  <tr><td>Iterative refinement</td><td>78%</td><td>240ms</td><td>1.2×</td></tr>
+                  <tr><td>External verifier</td><td>89%</td><td>280ms</td><td>2×</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <h2 id="observations">Observations</h2>
+            <p>The iterative refinement approach had a surprising effect: it often generated better answers even on the first pass. By asking the model to critique its own work, we got it to think out loud more, which seems to reduce the tendency to be overly confident in wrong answers.</p>
+            <p>The external verifier was the most accurate, but at 2× cost it is not practical for large-scale use. We are currently exploring ways to approximate this with cheaper techniques.</p>
+            <h2 id="next-steps">Next steps</h2>
+            <p>We are now exploring:</p>
+            <ol>
+              <li>Small verifier models trained specifically for self-correction</li>
+              <li>Rule-based checkers for specific domains, including arithmetic and code</li>
+              <li>Fine-tuning models on self-correction tasks</li>
+            </ol>
+            <p>If you are interested in this research, we are sharing our experimental setup and results on GitHub. The code is in an early stage, so expect some rough edges.</p>
+            </div>
+          </div>
+          <footer class="article-footer mt-15 border-t border-[var(--surface-border)] pt-8">
+            <a href="/blog" class="read-more">← BACK TO LOG</a>
+          </footer>
+        </article>
+      </section>
+    </MainLayout>
+    <ExperienceLayer client:load />
+    <ThemeToggle />
+  </body>
+</html>

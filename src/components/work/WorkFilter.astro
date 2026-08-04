@@ -1,0 +1,71 @@
+---
+import type { Work } from '../../data/site';
+import { WorkCard } from './WorkCard';
+
+interface Props {
+  works: Work[];
+}
+
+const { works } = Astro.props;
+const categories = ['All', ...new Set(works.map(work => work.category))];
+---
+
+<section data-work-filter>
+  <div class="filter-bar" aria-label="Filter work by category">
+    {categories.map(category => (
+      <button
+        type="button"
+        class:list={['filter-btn', { active: category === 'All' }]}
+        aria-pressed={category === 'All' ? 'true' : 'false'}
+        data-filter-category={category}
+      >
+        {category}
+      </button>
+    ))}
+  </div>
+  <p class="filter-count" aria-live="polite" data-filter-count>
+    {String(works.length).padStart(2, '0')} SYSTEMS INDEXED
+  </p>
+  <div class="grid work-grid" aria-live="polite">
+    {works.map(work => (
+      <div data-work-category={work.category}>
+        <WorkCard work={work} />
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  function setupWorkFilters() {
+    document.querySelectorAll<HTMLElement>('[data-work-filter]').forEach(filter => {
+      if (filter.dataset.ready === 'true') return;
+
+      filter.dataset.ready = 'true';
+      const buttons = [...filter.querySelectorAll<HTMLButtonElement>('[data-filter-category]')];
+      const cards = [...filter.querySelectorAll<HTMLElement>('[data-work-category]')];
+      const count = filter.querySelector<HTMLElement>('[data-filter-count]');
+
+      const update = (category: string) => {
+        let visible = 0;
+        cards.forEach(card => {
+          const matches = category === 'All' || card.dataset.workCategory === category;
+          card.hidden = !matches;
+          if (matches) visible += 1;
+        });
+        buttons.forEach(button => {
+          const active = button.dataset.filterCategory === category;
+          button.classList.toggle('active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        if (count) count.textContent = `${String(visible).padStart(2, '0')} SYSTEMS INDEXED`;
+      };
+
+      buttons.forEach(button => {
+        button.addEventListener('click', () => update(button.dataset.filterCategory ?? 'All'));
+      });
+    });
+  }
+
+  setupWorkFilters();
+  document.addEventListener('astro:page-load', setupWorkFilters);
+</script>

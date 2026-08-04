@@ -1,6 +1,12 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import { MainLayout } from '../components/layout/MainLayout';
+import { ExperienceLayer } from '../components/features/ExperienceLayer';
+import ThemeInit from '../components/theme/ThemeInit.astro';
+import ThemeToggle from '../components/theme/ThemeToggle.astro';
 import { TerminalHero } from '../components/hero/TerminalHero';
+import { WorkCard } from '../components/work/WorkCard';
+import { works } from '../data/site';
 import '../styles/global.css';
 ---
 
@@ -9,14 +15,42 @@ import '../styles/global.css';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DMC Labs — Building systems, not apps</title>
+    <ThemeInit />
+    <ClientRouter />
   </head>
   <body>
-    <MainLayout title="DMC Labs — Building systems, not apps">
-      <TerminalHero client:load />
-      <section id="content" class="reveal active">
-        <h1>Welcome to the Lab</h1>
-        <p>Experimental AI research in natural language processing, multimodal reasoning, and human-AI collaboration.</p>
+    <MainLayout title="DMC Labs — Building systems, not apps" activePath="/">
+      <TerminalHero
+        client:load
+        subtitle="Experimental AI research in natural language processing, multimodal reasoning, and human-AI collaboration."
+      />
+      <section id="featured-work" class="page-section mx-auto max-w-300 px-0 py-30 max-md:px-0 max-md:pt-25" data-reveal data-section="SELECTED WORK">
+        <div class="section-foot mb-10 flex items-end justify-between gap-6 max-md:flex-col max-md:items-start">
+          <div>
+            <h2 class="section-heading">SELECTED WORK</h2>
+            <p class="section-sub">Systems and research outputs from the lab. Most are open-source or publicly available.</p>
+          </div>
+          <a href="/work" class="btn btn-secondary inline-flex border border-[var(--accent)] bg-[var(--surface)] px-6 py-3 font-utility text-[0.8rem] font-semibold text-[var(--text-primary)] no-underline transition-colors hover:border-[var(--text-primary)] hover:bg-[var(--surface-elevated)]">VIEW ALL WORK</a>
+        </div>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(18.75rem,1fr))] gap-6 max-md:grid-cols-1">
+          {works.slice(0, 3).map(work => <WorkCard work={work} />)}
+        </div>
+      </section>
+      <section id="about-teaser" class="page-section split mx-auto grid max-w-300 grid-cols-2 items-center gap-15 py-30 max-md:grid-cols-1 max-md:pt-25" data-reveal data-section="THE LAB">
+        <div class="photo-placeholder grid aspect-square place-items-center border border-[var(--surface-border)] bg-[var(--surface)]" aria-hidden="true">
+          <span>DMC LABS</span>
+        </div>
+        <div class="about-text">
+          <h2>Independent research lab founded in 2022</h2>
+          <p>We build tools and systems that extend what is possible with AI, focusing on transparency, reproducibility, and practical value. Our work spans from open-source libraries to deployed production systems.</p>
+          <p>Current focus: LLM efficiency, multimodal reasoning, and human-in-the-loop workflows.</p>
+          <div class="cta-row cta-row-start">
+            <a href="/about" class="btn btn-secondary inline-flex border border-[var(--accent)] bg-[var(--surface)] px-6 py-3 font-utility text-[0.8rem] font-semibold text-[var(--text-primary)] no-underline transition-colors hover:border-[var(--text-primary)] hover:bg-[var(--surface-elevated)]">LEARN MORE</a>
+          </div>
+        </div>
       </section>
     </MainLayout>
+    <ExperienceLayer client:load />
+    <ThemeToggle />
   </body>
 </html>
