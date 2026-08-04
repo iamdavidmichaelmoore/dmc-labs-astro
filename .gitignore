@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage
+
+# Production
+dist/
+dist-ssr/
+*.local
+
+# Astro
+astro.config.mjs
+out/
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+debug.log
+
+# Local env files
+.env
+.env.*.local
+
+# Vite
+.vite

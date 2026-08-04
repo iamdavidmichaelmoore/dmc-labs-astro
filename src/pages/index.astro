@@ -1,0 +1,23 @@
+---
+import { MainLayout } from '../components/layout/MainLayout';
+import { TerminalHero } from '../components/hero/TerminalHero';
+import { WireframeGrid } from '../components/features/WireframeGrid';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DMC Labs — Building systems, not apps</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body>
+    <MainLayout title="DMC Labs — Building systems, not apps">
+      <TerminalHero />
+      <section id="content" class="reveal">
+        <h1>Welcome to the Lab</h1>
+        <p>Experimental AI research in natural language processing, multimodal reasoning, and human-AI collaboration.</p>
+      </section>
+    </MainLayout>
+  </body>
+</html>
