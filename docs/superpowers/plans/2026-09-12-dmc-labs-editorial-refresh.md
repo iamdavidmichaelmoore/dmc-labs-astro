@@ -23,6 +23,7 @@
 - Stack stays Astro + React + Tailwind v4; no CMS/MDX migration in this plan
 - Experiment status filters are out of scope for v1
 - Drop about photo placeholder unless a real image is added (omit for now)
+- Automated test prerequisite: if the target branch does not already define `npm test`, `npm run test:unit`, and `npm run test:e2e`, introduce and document those scripts (plus the focused single-test invocation pattern used below) before starting Task 1
 - `npm run build`, `npm run test:unit`, and `npm run test:e2e` must pass after updates
 
 ---
@@ -61,6 +62,8 @@
 ---
 
 ### Task 1: Design tokens and typography foundation
+
+**Prerequisite:** Confirm the repository already exposes `npm test`, `npm run test:unit`, and `npm run test:e2e`. If not, add and document those scripts first so the focused commands in this plan are executable.
 
 **Files:**
 - Modify: `src/styles/global.css`
