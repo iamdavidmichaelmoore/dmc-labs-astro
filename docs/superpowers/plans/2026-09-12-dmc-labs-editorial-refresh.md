@@ -517,14 +517,10 @@ return Astro.redirect('/notes', 301);
 ```astro
 ---
 // src/pages/blog/[slug].astro
-import { posts } from '../../data/site';
-
-type RedirectablePost = (typeof posts)[number] & { slug: string };
+const legacyBlogSlugs = ['self-correction-in-llms'];
 
 export function getStaticPaths() {
-  return posts
-    .filter((post): post is RedirectablePost => Boolean(post.slug))
-    .map(post => ({ params: { slug: post.slug } }));
+  return legacyBlogSlugs.map(slug => ({ params: { slug } }));
 }
 
 const { slug } = Astro.params;
