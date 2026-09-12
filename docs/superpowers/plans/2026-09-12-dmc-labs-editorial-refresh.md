@@ -473,9 +473,11 @@ return Astro.redirect('/notes', 301);
 // src/pages/blog/[slug].astro
 import { posts } from '../../data/site';
 
+type RedirectablePost = (typeof posts)[number] & { slug: string };
+
 export function getStaticPaths() {
   return posts
-    .filter((post): post is typeof post & { slug: string } => Boolean(post.slug))
+    .filter((post): post is RedirectablePost => Boolean(post.slug))
     .map(post => ({ params: { slug: post.slug } }));
 }
 
