@@ -1,0 +1,45 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { MainLayout } from '../components/layout/MainLayout';
+import { ExperienceLayer } from '../components/features/ExperienceLayer';
+import ThemeInit from '../components/theme/ThemeInit.astro';
+import ThemeToggle from '../components/theme/ThemeToggle.astro';
+import { ExperimentCard } from '../components/experiments/ExperimentCard';
+import { works } from '../data/site';
+import '../styles/global.css';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Experiments | DMC Labs</title>
+    <ThemeInit />
+    <ClientRouter />
+  </head>
+  <body>
+    <MainLayout title="Experiments | DMC Labs" activePath="/experiments">
+      <section
+        class="mx-auto max-w-300 px-6 pb-16 pt-35 max-md:px-4 max-md:pb-12 max-md:pt-28"
+        data-reveal
+        data-section="EXPERIMENTS"
+      >
+        <header class="mb-12 max-w-2xl">
+          <h1 class="font-display text-[clamp(2rem,5vw,3rem)] font-bold tracking-tight text-[var(--text-primary)]">
+            Experiments
+          </h1>
+          <p class="mt-4 font-body text-lg leading-relaxed text-[var(--text-secondary)]">
+            Things we are building, probing, and sometimes abandoning. An independent builder lab keeps a public shelf of work-in-progress — here is ours.
+          </p>
+        </header>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-6">
+          {works.map(work => (
+            <ExperimentCard work={work} />
+          ))}
+        </div>
+      </section>
+    </MainLayout>
+    <ExperienceLayer client:load />
+    <ThemeToggle />
+  </body>
+</html>

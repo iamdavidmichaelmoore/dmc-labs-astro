@@ -6,11 +6,29 @@ export interface Work {
   status: string;
 }
 
+export interface NoteTocItem {
+  id: string;
+  label: string;
+}
+
+export type NoteSection =
+  | { type: 'paragraph'; text: string }
+  | { type: 'heading'; id: string; text: string }
+  | { type: 'code'; title: string; language: string; code: string }
+  | { type: 'list'; ordered?: boolean; items: string[] }
+  | { type: 'quote'; text: string }
+  | { type: 'table'; headers: string[]; rows: string[][] };
+
 export interface BlogPost {
   slug?: string;
   date: string;
   title: string;
   description: string;
+  /** Full article heading when distinct from list title */
+  articleTitle?: string;
+  category?: string;
+  toc?: NoteTocItem[];
+  sections?: NoteSection[];
 }
 
 export const works: Work[] = [
@@ -95,12 +113,103 @@ export const milestones = [
   },
 ];
 
+const selfCorrectionSections: NoteSection[] = [
+  {
+    type: 'paragraph',
+    text: 'LLMs make mistakes. This is obvious. But how much of those mistakes are fundamental limitations of the architecture, and how much are failures of the prompting or fine-tuning process? We set out to answer this question by testing different approaches to self-correction in language models.',
+  },
+  { type: 'heading', id: 'problem', text: 'The problem' },
+  {
+    type: 'paragraph',
+    text: 'When you ask an LLM a question and it gives a wrong answer, you cannot just ask it again. The model does not remember its previous answer and does not have an internal notion of “I was wrong.” This is the fundamental problem: we want systems that can catch and fix their own errors, but standard language models lack that capability.',
+  },
+  { type: 'heading', id: 'approaches', text: 'Approaches we tested' },
+  {
+    type: 'paragraph',
+    text: 'We tested three main approaches:',
+  },
+  {
+    type: 'code',
+    title: 'verifier-loop.ts',
+    language: 'ts',
+    code: `const draft = await model.answer(question);
+const review = await verifier.check(draft);
+const answer = review.valid
+  ? draft
+  : await model.revise(draft, review.feedback);`,
+  },
+  {
+    type: 'list',
+    items: [
+      '<strong>Chain-of-thought prompting:</strong> Ask the model to show its reasoning before giving the final answer. This does not directly enable correction, but it makes errors more visible to the user.',
+      '<strong>Iterative refinement:</strong> Ask the model to produce an initial answer, then ask it to critique and improve it. This is the most direct form of self-correction.',
+      '<strong>External verifier:</strong> Use another model or a rule-based system to check the answer and ask the original model to fix any mistakes found.',
+    ],
+  },
+  {
+    type: 'quote',
+    text: 'The external verifier approach was by far the most effective, but it requires another model. We need cheaper ways to do this at scale.',
+  },
+  { type: 'heading', id: 'results', text: 'Results' },
+  {
+    type: 'paragraph',
+    text: 'We tested all three approaches on arithmetic, logic, and multi-step reasoning tasks. Here is what we found:',
+  },
+  {
+    type: 'table',
+    headers: ['Approach', 'Accuracy', 'Latency', 'Cost'],
+    rows: [
+      ['None', '64%', '120ms', '1×'],
+      ['Chain-of-thought', '71%', '180ms', '1×'],
+      ['Iterative refinement', '78%', '240ms', '1.2×'],
+      ['External verifier', '89%', '280ms', '2×'],
+    ],
+  },
+  { type: 'heading', id: 'observations', text: 'Observations' },
+  {
+    type: 'paragraph',
+    text: 'The iterative refinement approach had a surprising effect: it often generated better answers even on the first pass. By asking the model to critique its own work, we got it to think out loud more, which seems to reduce the tendency to be overly confident in wrong answers.',
+  },
+  {
+    type: 'paragraph',
+    text: 'The external verifier was the most accurate, but at 2× cost it is not practical for large-scale use. We are currently exploring ways to approximate this with cheaper techniques.',
+  },
+  { type: 'heading', id: 'next-steps', text: 'Next steps' },
+  {
+    type: 'paragraph',
+    text: 'We are now exploring:',
+  },
+  {
+    type: 'list',
+    ordered: true,
+    items: [
+      'Small verifier models trained specifically for self-correction',
+      'Rule-based checkers for specific domains, including arithmetic and code',
+      'Fine-tuning models on self-correction tasks',
+    ],
+  },
+  {
+    type: 'paragraph',
+    text: 'If you are interested in this research, we are sharing our experimental setup and results on GitHub. The code is in an early stage, so expect some rough edges.',
+  },
+];
+
 export const posts: BlogPost[] = [
   {
     slug: 'self-correction-in-llms',
     date: '2024-07-15',
     title: 'Self-Correction in LLMs',
+    articleTitle: 'Self-Correction in LLMs: A Research Note',
+    category: 'Research',
     description: 'An exploration into techniques that make LLMs better at catching their own mistakes. We tested several approaches, including chain-of-thought prompting and hierarchical reasoning structures.',
+    toc: [
+      { id: 'problem', label: 'The problem' },
+      { id: 'approaches', label: 'Approaches' },
+      { id: 'results', label: 'Results' },
+      { id: 'observations', label: 'Observations' },
+      { id: 'next-steps', label: 'Next steps' },
+    ],
+    sections: selfCorrectionSections,
   },
   {
     date: '2024-06-28',
@@ -128,3 +237,29 @@ export const posts: BlogPost[] = [
     description: 'Writing about the problem space: researchers spend too much time searching literature and not enough time doing actual research. We built tools to flip that ratio.',
   },
 ];
+
+export function formatNoteDate(isoDate: string): string {
+  const date = new Date(`${isoDate}T12:00:00Z`);
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
+}
+
+export function getLatestNote(posts: BlogPost[]): BlogPost {
+  if (posts.length === 0) {
+    throw new Error('getLatestNote requires at least one post');
+  }
+  const withSlug = posts.find(post => Boolean(post.slug));
+  return withSlug ?? posts[0]!;
+}
+
+export function getActiveExperiments(works: Work[], limit = 3): Work[] {
+  return works.filter(work => work.status === 'Active').slice(0, limit);
+}
+
+export function hasNoteContent(post: BlogPost): post is BlogPost & { slug: string; sections: NoteSection[] } {
+  return Boolean(post.slug && post.sections && post.sections.length > 0);
+}

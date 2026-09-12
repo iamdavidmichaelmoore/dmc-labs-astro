@@ -1,0 +1,119 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { MainLayout } from '../../components/layout/MainLayout';
+import ArticleToc from '../../components/blog/ArticleToc.astro';
+import CodePanel from '../../components/blog/CodePanel.astro';
+import { ExperienceLayer } from '../../components/features/ExperienceLayer';
+import ThemeInit from '../../components/theme/ThemeInit.astro';
+import ThemeToggle from '../../components/theme/ThemeToggle.astro';
+import { formatNoteDate, hasNoteContent, posts, type BlogPost } from '../../data/site';
+import '../../styles/global.css';
+
+export function getStaticPaths() {
+  return posts.filter(hasNoteContent).map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: BlogPost;
+}
+
+const { post } = Astro.props;
+const articleTitle = post.articleTitle ?? post.title;
+const metaParts = [formatNoteDate(post.date), post.category].filter(Boolean);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{post.title} | DMC Labs</title>
+    <ThemeInit />
+    <ClientRouter />
+  </head>
+  <body>
+    <MainLayout title={`${post.title} | DMC Labs`} activePath="/notes">
+      <section class="page-section mx-auto max-w-300 px-6 py-30 max-md:px-4 max-md:pt-25" data-reveal data-section="NOTE">
+        <article class="article-wrap mx-auto max-w-235">
+          <a href="/notes" class="back-link font-utility text-[0.8rem] text-[var(--text-secondary)] no-underline transition-colors hover:text-[var(--accent)]">← Back to notes</a>
+          <header class="article-header mt-8">
+            <h1>{articleTitle}</h1>
+            <p class="article-meta">{metaParts.join(' · ')}</p>
+          </header>
+          <div class="article-reading-layout mt-12 grid grid-cols-[9.375rem_minmax(0,1fr)] gap-10 max-md:block">
+            {post.toc && post.toc.length > 0 && <ArticleToc items={post.toc} />}
+            <div class="article-body min-w-0 max-w-[65ch]">
+              {(post.sections ?? []).map(section => {
+                if (section.type === 'paragraph') {
+                  return <p set:html={section.text} />;
+                }
+                if (section.type === 'heading') {
+                  return <h2 id={section.id}>{section.text}</h2>;
+                }
+                if (section.type === 'code') {
+                  return (
+                    <CodePanel
+                      title={section.title}
+                      language={section.language}
+                      code={section.code}
+                    />
+                  );
+                }
+                if (section.type === 'list') {
+                  return section.ordered ? (
+                    <ol>
+                      {section.items.map(item => (
+                        <li set:html={item} />
+                      ))}
+                    </ol>
+                  ) : (
+                    <ul>
+                      {section.items.map(item => (
+                        <li set:html={item} />
+                      ))}
+                    </ul>
+                  );
+                }
+                if (section.type === 'quote') {
+                  return <blockquote class="pull-quote">{section.text}</blockquote>;
+                }
+                if (section.type === 'table') {
+                  return (
+                    <div class="table-wrap overflow-x-auto">
+                      <table class="backdrop-blur-xl">
+                        <thead>
+                          <tr>
+                            {section.headers.map(header => (
+                              <th>{header}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {section.rows.map(row => (
+                            <tr>
+                              {row.map(cell => (
+                                <td>{cell}</td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                }
+                return null;
+              })}
+            </div>
+          </div>
+          <footer class="article-footer mt-15 border-t border-[var(--surface-border)] pt-8">
+            <a href="/notes" class="read-more">← BACK TO NOTES</a>
+          </footer>
+        </article>
+      </section>
+    </MainLayout>
+    <ExperienceLayer client:load />
+    <ThemeToggle />
+  </body>
+</html>

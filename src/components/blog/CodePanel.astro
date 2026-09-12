@@ -1,5 +1,6 @@
 ---
 import { codeToHtml, type BundledLanguage } from 'shiki';
+import { darkTheme, lightTheme } from '../../styles/themeTokens';
 
 interface Props {
   code: string;
@@ -8,6 +9,26 @@ interface Props {
 }
 
 const { code, language = 'text', title } = Astro.props;
+
+/** Clay-on-paper syntax colors aligned with editorial tokens (no CRT green/red/yellow). */
+const lightSyntax = {
+  bg: '#FBF6EE',
+  fg: lightTheme.ink,
+  comment: '#8A8276',
+  string: '#A64C1F',
+  keyword: lightTheme.accent,
+  function: '#5F594E',
+} as const;
+
+const darkSyntax = {
+  bg: darkTheme.surface,
+  fg: darkTheme.ink,
+  comment: '#7A746A',
+  string: '#E0BC6A',
+  keyword: darkTheme.accent,
+  function: '#A39E94',
+} as const;
+
 const highlightedCode = await codeToHtml(code, {
   lang: language as BundledLanguage,
   themes: {
@@ -15,28 +36,28 @@ const highlightedCode = await codeToHtml(code, {
       name: 'dmc-light',
       type: 'light',
       colors: {
-        'editor.background': '#fffaf5',
-        'editor.foreground': '#302a24',
+        'editor.background': lightSyntax.bg,
+        'editor.foreground': lightSyntax.fg,
       },
       tokenColors: [
-        { scope: ['comment'], settings: { foreground: '#918972' } },
-        { scope: ['string', 'constant.numeric', 'constant.language'], settings: { foreground: '#d9ab4b' } },
-        { scope: ['keyword', 'storage', 'keyword.control'], settings: { foreground: '#d96e64' } },
-        { scope: ['entity.name.function', 'support.function', 'entity.name.type', 'support.type'], settings: { foreground: '#4db356' } },
+        { scope: ['comment'], settings: { foreground: lightSyntax.comment } },
+        { scope: ['string', 'constant.numeric', 'constant.language'], settings: { foreground: lightSyntax.string } },
+        { scope: ['keyword', 'storage', 'keyword.control'], settings: { foreground: lightSyntax.keyword } },
+        { scope: ['entity.name.function', 'support.function', 'entity.name.type', 'support.type'], settings: { foreground: lightSyntax.function } },
       ],
     },
     dark: {
       name: 'dmc-dark',
       type: 'dark',
       colors: {
-        'editor.background': '#1d1a14',
-        'editor.foreground': '#f8f3ed',
+        'editor.background': darkSyntax.bg,
+        'editor.foreground': darkSyntax.fg,
       },
       tokenColors: [
-        { scope: ['comment'], settings: { foreground: '#938f85' } },
-        { scope: ['string', 'constant.numeric', 'constant.language'], settings: { foreground: '#ffbd2f' } },
-        { scope: ['keyword', 'storage', 'keyword.control'], settings: { foreground: '#ff5f56' } },
-        { scope: ['entity.name.function', 'support.function', 'entity.name.type', 'support.type'], settings: { foreground: '#29c940' } },
+        { scope: ['comment'], settings: { foreground: darkSyntax.comment } },
+        { scope: ['string', 'constant.numeric', 'constant.language'], settings: { foreground: darkSyntax.string } },
+        { scope: ['keyword', 'storage', 'keyword.control'], settings: { foreground: darkSyntax.keyword } },
+        { scope: ['entity.name.function', 'support.function', 'entity.name.type', 'support.type'], settings: { foreground: darkSyntax.function } },
       ],
     },
   },

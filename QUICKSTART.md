@@ -65,6 +65,19 @@ dmc-labs-astro/
 | `npm run preview` | Preview production build |
 | `npm run astro` | Run Astro CLI |
 
+## Testing
+
+```bash
+# Full unit suite
+npm run test:unit
+
+# Focused unit test (example)
+npm run test:unit -- tests/unit/SiteNav.test.tsx
+
+# End-to-end
+npm run test:e2e
+```
+
 ## First Page
 
 The `src/pages/index.astro` file shows the basic setup:

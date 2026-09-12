@@ -1,13 +1,11 @@
 import { Main } from './Main';
-import { type NavItem, WireframeNav } from './WireframeNav';
-import { WireframeFooter } from './WireframeFooter';
+import { type NavItem, SiteNav } from './SiteNav';
+import { SiteFooter } from './SiteFooter';
 
 const navigationItems: NavItem[] = [
-  { label: 'Home', href: '/' },
-  { label: 'The Lab', href: '/about' },
-  { label: 'Work', href: '/work' },
-  { label: 'Log', href: '/blog' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Experiments', href: '/experiments' },
+  { label: 'Notes', href: '/notes' },
+  { label: 'About', href: '/about' },
 ];
 
 interface MainLayoutProps {
@@ -24,11 +22,11 @@ export function MainLayout({ title, children, activePath }: MainLayoutProps) {
 
   return (
     <Main className="main-wrapper" ariaLabel={title}>
-      <WireframeNav items={activeNavigationItems} />
+      <SiteNav items={activeNavigationItems} />
       <div className="main-content">
         {children}
       </div>
-      <WireframeFooter />
+      <SiteFooter />
     </Main>
   );
 }

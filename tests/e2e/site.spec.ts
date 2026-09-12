@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('the home page is styled, hydrated, and fully visible', async ({ page }) => {
+test('home is essay-led and free of terminal chrome', async ({ page }) => {
   const browserErrors: string[] = [];
   page.on('pageerror', error => browserErrors.push(error.message));
   page.on('console', message => {
@@ -9,107 +9,96 @@ test('the home page is styled, hydrated, and fully visible', async ({ page }) =>
 
   await page.goto('/');
 
+  await expect(page).toHaveTitle(/We try things/i);
+  await expect(page.locator('.terminal')).toHaveCount(0);
   await expect(page.locator('.bg-grid')).toHaveCount(0);
-  await expect(page).toHaveTitle('DMC Labs — Building systems, not apps');
-  await expect(page.locator('.terminal')).toHaveCSS('border-top-width', '1px');
-  await expect(page.locator('.terminal-line.visible')).toHaveCount(6, { timeout: 5_000 });
-  await expect(page.locator('.hero .cta-row')).toHaveCSS('opacity', '1');
-  await expect(page.getByRole('heading', { name: 'SELECTED WORK' })).toBeVisible();
-  await expect(page.locator('#featured-work .card')).toHaveCount(3);
-  await expect(page.locator('nav a[href="/work"]')).toBeVisible();
-
-  const [navBox, terminalBox] = await Promise.all([
-    page.locator('nav').boundingBox(),
-    page.locator('.terminal').boundingBox(),
-  ]);
-  expect(navBox).not.toBeNull();
-  expect(terminalBox).not.toBeNull();
-  expect(terminalBox!.y).toBeGreaterThanOrEqual(navBox!.y + navBox!.height + 24);
+  await expect(page.locator('.nav-flyout')).toHaveCount(0);
+  await expect(page.getByText(/latest note/i)).toBeVisible();
+  await expect(page.getByText(/also running/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Self-Correction in LLMs/i })).toBeVisible();
+  await expect(page.locator('nav a[href="/experiments"]')).toBeVisible();
+  await expect(page.locator('nav a[href="/notes"]')).toBeVisible();
+  await expect(page.locator('nav a[href="/about"]')).toBeVisible();
+  await expect(page.locator('nav a[href="/work"]')).toHaveCount(0);
+  await expect(page.locator('nav a[href="/blog"]')).toHaveCount(0);
 
   expect(browserErrors).toEqual([]);
 });
 
-test('scrolling reveals content and increases the ambient illumination', async ({ page }) => {
+test('scrolling reveals content quietly', async ({ page }) => {
   await page.goto('/');
 
-  const insetNav = await page.locator('nav').boundingBox();
-  const illuminationBefore = await page.evaluate(() =>
-    getComputedStyle(document.documentElement).getPropertyValue('--scroll-illumination'),
-  );
+  await expect(page.locator('.scroll-telemetry')).toHaveCount(0);
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await expect(page.locator('nav')).toHaveClass(/nav-scrolled/);
-  const flushNav = await page.locator('nav').boundingBox();
-  expect(insetNav).not.toBeNull();
-  expect(flushNav).not.toBeNull();
-  expect(insetNav!.x).toBeGreaterThan(0);
-  expect(flushNav!.x).toBe(0);
-  await expect(page.locator('#featured-work')).toHaveClass(/is-visible/);
-
-  await expect.poll(() => page.evaluate(() =>
-    Number(getComputedStyle(document.documentElement).getPropertyValue('--scroll-illumination')),
-  )).toBeGreaterThan(Number(illuminationBefore));
-  await expect(page.locator('.footer')).toHaveCSS('background-image', 'none');
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await expect(page.locator('nav')).not.toHaveClass(/nav-scrolled/);
+  await expect(page.locator('#contact[data-reveal]')).toHaveClass(/is-visible/);
+  await expect(page.locator('.scroll-telemetry')).toHaveCount(0);
 });
 
-for (const [path, heading] of [
-  ['/work', 'WORK'],
-  ['/about', 'THE LAB'],
-  ['/blog', 'LOG'],
-]) {
-  test(`the ${path} route renders its page`, async ({ page }) => {
-    await page.goto(path);
+test('experiments and notes routes render', async ({ page }) => {
+  await page.goto('/experiments');
+  await expect(page.getByRole('heading', { name: 'Experiments' })).toBeVisible();
+  await expect(page.locator('article.experiment-card')).toHaveCount(6);
 
-    await expect(page.getByRole('heading', { name: heading })).toBeVisible();
-  });
-}
+  await page.goto('/notes');
+  await expect(page.getByRole('heading', { name: 'Notes' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Self-Correction in LLMs' })).toBeVisible();
+});
 
-test('the work filter narrows the displayed research by category', async ({ page }) => {
-  await page.goto('/work');
+test('legacy work and blog paths redirect', async ({ page }) => {
+  await page.goto('/work', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL(/\/experiments\/?$/, { timeout: 10_000 });
+  await expect(page.getByRole('heading', { name: 'Experiments' })).toBeVisible();
 
-  await expect(page.locator('.work-grid .card')).toHaveCount(6);
-  await page.getByRole('button', { name: 'Experiment' }).click();
-  await expect(page.locator('.work-grid > div:not([hidden]) .card')).toHaveCount(2);
-  await expect(page.getByText('Self-Reflecting Language Model')).toBeVisible();
-  await expect(page.getByText('Contextual Query Engine')).not.toBeVisible();
+  await page.goto('/blog', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL(/\/notes\/?$/, { timeout: 10_000 });
+  await expect(page.getByRole('heading', { name: 'Notes' })).toBeVisible();
+
+  await page.goto('/blog/self-correction-in-llms', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL(/\/notes\/self-correction-in-llms\/?$/, { timeout: 10_000 });
+});
+
+test('the about page tells the lab story without a photo placeholder', async ({ page }) => {
+  await page.goto('/about');
+  await expect(page.getByRole('heading', { name: /about the lab/i })).toBeVisible();
+  await expect(page.locator('.photo-placeholder')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: /focus areas/i })).toBeVisible();
+});
+
+test('theme toggle switches clay-on-paper themes', async ({ page }) => {
+  await page.goto('/');
+  const toggle = page.getByRole('button', { name: /switch to .* theme/i });
+  await expect(toggle).toBeVisible();
+  const before = await page.locator('html').getAttribute('data-theme');
+  await toggle.click();
+  await expect.poll(async () => page.locator('html').getAttribute('data-theme')).not.toBe(before);
+  await expect.poll(async () => page.locator('html').getAttribute('data-theme')).toMatch(/light|dark/);
 });
 
 test('internal navigation uses the client router', async ({ page }) => {
   await page.goto('/');
 
-  await page.locator('nav a[href="/work"]').click();
+  await page.locator('nav a[href="/experiments"]').click();
 
-  await expect(page).toHaveURL(/\/work$/);
-  await expect(page.getByRole('heading', { name: 'WORK' })).toBeVisible();
-});
-
-test('navigation links preview their destination structure', async ({ page }) => {
-  await page.goto('/');
-
-  await page.locator('nav a[href="/work"]').hover();
-
-  await expect(page.locator('.nav-flyout-work')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Selected systems' })).toBeVisible();
-  await expect(page.locator('.nav-flyout-work')).toHaveCSS('width', '336px');
+  await expect(page).toHaveURL(/\/experiments\/?$/);
+  await expect(page.getByRole('heading', { name: 'Experiments' })).toBeVisible();
 });
 
 test('header controls and content links remain independently clickable', async ({ page }) => {
   await page.goto('/');
 
-  const [toggleBox, logLinkBox] = await Promise.all([
+  const [toggleBox, notesLinkBox] = await Promise.all([
     page.getByRole('button', { name: /switch to .* theme/i }).boundingBox(),
-    page.locator('nav a[href="/blog"]').boundingBox(),
+    page.locator('nav a[href="/notes"]').boundingBox(),
   ]);
   expect(toggleBox).not.toBeNull();
-  expect(logLinkBox).not.toBeNull();
-  expect(toggleBox!.x).toBeGreaterThanOrEqual(logLinkBox!.x + logLinkBox!.width);
+  expect(notesLinkBox).not.toBeNull();
+  expect(toggleBox!.x).toBeGreaterThanOrEqual(notesLinkBox!.x + notesLinkBox!.width);
 
-  await page.locator('#featured-work a[href="/work"]').click();
-  await expect(page).toHaveURL(/\/work$/);
+  await page.getByRole('link', { name: /all experiments/i }).click();
+  await expect(page).toHaveURL(/\/experiments\/?$/);
 
-  await page.locator('footer a[href="/blog"]').click();
-  await expect(page).toHaveURL(/\/blog$/);
+  await page.locator('footer a[href="/notes"]').click();
+  await expect(page).toHaveURL(/\/notes\/?$/);
 });
 
 test('the compact layout contains its controls without horizontal overflow', async ({ page }) => {
@@ -148,16 +137,17 @@ test('the theme follows system preference and persists a user selection', async 
   await page.getByRole('button', { name: 'Switch to light theme' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('dmc-labs-theme'))).toBe('light');
-  await page.locator('nav a[href="/work"]').click();
-  await expect(page).toHaveURL(/\/work$/);
+  await page.locator('nav a[href="/experiments"]').click();
+  await expect(page).toHaveURL(/\/experiments\/?$/);
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 
-test('the research article is available from the log', async ({ page }) => {
-  await page.goto('/blog');
+test('the research note is available from notes', async ({ page }) => {
+  await page.goto('/notes');
 
-  await expect(page.locator('.card')).toHaveCount(6);
-  await page.getByRole('link', { name: 'Self-Correction in LLMs' }).click();
+  await expect(page.getByRole('link', { name: 'Self-Correction in LLMs' })).toBeVisible();
+  await page.getByRole('link', { name: 'Self-Correction in LLMs' }).first().click();
+  await expect(page).toHaveURL(/\/notes\/self-correction-in-llms\/?$/);
   await expect(page.getByRole('heading', { name: 'Self-Correction in LLMs: A Research Note' })).toBeVisible();
   await expect(page.locator('table')).toBeVisible();
   await expect(page.locator('.code-panel')).toBeVisible();
