@@ -99,8 +99,8 @@ Theme toggle: follow system preference on first visit, then remember the user’
 
 - Keep **Astro + React + Tailwind v4** stack already in the repo  
 - Restyle in place: replace `global.css` tokens, rebuild layout components (`MainLayout`, nav, footer), replace home composition  
-- Rename routes and update internal links + `site.ts` labels as needed  
-- Preserve existing content model in `src/data/site.ts` (works → experiments naming in UI; posts → notes)  
+- Rename routes and update internal links + `site.ts` labels as needed; add explicit static-host-compatible redirects for `/work` → `/experiments`, `/blog` → `/notes`, and `/blog/[slug]` → `/notes/[slug]`, then validate those legacy URLs
+- Preserve existing content model in `src/data/site.ts` (works → experiments naming in UI; posts → notes)
 - Update unit/e2e tests that assert old copy, routes, or terminal-specific behavior  
 - Add `.superpowers/` to `.gitignore` if design artifacts ever land in-repo  
 
