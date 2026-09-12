@@ -33,3 +33,6 @@ debug.log
 
 # Vite
 .vite
+
+# Local design / brainstorm artifacts
+.superpowers/
