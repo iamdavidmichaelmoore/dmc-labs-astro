@@ -66,13 +66,13 @@
 - Modify: `src/styles/global.css`
 - Create: `public/fonts/` (woff2 files) OR wire `@fontsource` packages if lighter — prefer self-host woff2 under `public/fonts/`
 - Modify: `src/styles/global.css` `@theme` / `:root` / `[data-theme='light']` / dark defaults
-- Test: `tests/unit/theme-tokens.test.ts` (new lightweight assertion via jsdom/CSS read is optional — prefer e2e color check in Task 7; for this task use a Vitest file that imports CSS only if practical; otherwise verify with Playwright in Task 7 and use a unit test on a tiny `getThemeTokens()` helper)
+- Test: `tests/unit/themeTokens.test.tsx` (use a jsdom/Vitest test that verifies both the exported palettes and the CSS custom properties/computed styles for light + dark themes so stale values in `global.css` cannot pass)
 
 **Interfaces:**
 - Consumes: existing `data-theme` attribute from `ThemeInit.astro` / `ThemeToggle.astro`
 - Produces: CSS custom properties `--bg-color`, `--surface`, `--text-primary`, `--text-secondary`, `--accent`, `--font-display`, `--font-body`, `--font-utility` with the exact hex values from Global Constraints
 
-- [ ] **Step 1: Write the failing unit test for token helper**
+- [ ] **Step 1: Write the failing unit test for token helper and CSS contract**
 
 Create `src/styles/themeTokens.ts`:
 
@@ -92,13 +92,18 @@ export const darkTheme = {
 } as const;
 ```
 
-Create `tests/unit/themeTokens.test.ts`:
+Create `tests/unit/themeTokens.test.tsx`:
 
 ```ts
-import { describe, expect, it } from 'vitest';
+import '../../src/styles/global.css';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { darkTheme, lightTheme } from '../../src/styles/themeTokens';
 
 describe('themeTokens', () => {
+  beforeEach(() => {
+    document.documentElement.removeAttribute('data-theme');
+  });
+
   it('exposes the approved light and dark palettes', () => {
     expect(lightTheme).toEqual({
       bg: '#F7F1E8',
@@ -113,12 +118,28 @@ describe('themeTokens', () => {
       accent: '#D96A32',
     });
   });
+
+  it('wires the approved CSS custom properties for both themes', () => {
+    const lightStyles = getComputedStyle(document.documentElement);
+    expect(lightStyles.getPropertyValue('--bg-color').trim()).toBe('#F7F1E8');
+    expect(lightStyles.getPropertyValue('--surface').trim()).toBe('#EFE7DB');
+    expect(lightStyles.getPropertyValue('--text-primary').trim()).toBe('#1C1915');
+    expect(lightStyles.getPropertyValue('--accent').trim()).toBe('#C45C26');
+
+    document.documentElement.setAttribute('data-theme', 'dark');
+
+    const darkStyles = getComputedStyle(document.documentElement);
+    expect(darkStyles.getPropertyValue('--bg-color').trim()).toBe('#141210');
+    expect(darkStyles.getPropertyValue('--surface').trim()).toBe('#1E1B17');
+    expect(darkStyles.getPropertyValue('--text-primary').trim()).toBe('#F3EDE4');
+    expect(darkStyles.getPropertyValue('--accent').trim()).toBe('#D96A32');
+  });
 });
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `npm run test:unit -- tests/unit/themeTokens.test.ts`
+Run: `npm run test:unit -- tests/unit/themeTokens.test.tsx`
 Expected: FAIL (module not found)
 
 - [ ] **Step 3: Implement token module and wire CSS variables**
@@ -130,18 +151,18 @@ Expected: FAIL (module not found)
      - `:root[data-theme='dark']` = dark tokens
 3. Update `ThemeInit.astro` if it assumes dark-first so first paint matches system preference without flash (keep existing storage key `dmc-labs-theme`).
 4. Set `--font-display` to Fraunces (or Newsreader) stack and `--font-body` to Source Sans 3 (or Inter). Utility mono only for meta.
-5. Remove CRT green (`#29c940` / `#a0ff85`) references from token section.
+5. Remove CRT green (`#29c940` / `#a0ff85`) and all remaining green-derived `global.css` rules, including ambient `rgb(41 201 64 / ...)` backgrounds, `.scroll-telemetry`, and the theme-toggle hover state if it still uses the old accent.
 6. Add `@font-face` rules pointing at self-hosted files under `public/fonts/`.
 
 - [ ] **Step 4: Run unit test to verify it passes**
 
-Run: `npm run test:unit -- tests/unit/themeTokens.test.ts`
+Run: `npm run test:unit -- tests/unit/themeTokens.test.tsx`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/styles/themeTokens.ts src/styles/global.css src/components/theme/ThemeInit.astro public/fonts tests/unit/themeTokens.test.ts
+git add src/styles/themeTokens.ts src/styles/global.css src/components/theme/ThemeInit.astro public/fonts tests/unit/themeTokens.test.tsx
 git commit -m "feat: add editorial light/dark design tokens and typography"
 ```
 
@@ -163,6 +184,7 @@ git commit -m "feat: add editorial light/dark design tokens and typography"
   - Notes → `/notes`
   - About → `/about`
   - (Home via wordmark only — no Home nav item required)
+- External footer GitHub link uses `target="_blank"` with `rel="noopener noreferrer"`
 
 - [ ] **Step 1: Write the failing SiteNav test**
 
@@ -200,11 +222,12 @@ Expected: FAIL (module not found)
 
 `SiteNav.tsx` — quiet sticky/fixed masthead, wordmark + links, no flyout map, no uppercase wireframe styling required (sentence or title case is fine; keep accessible focus styles using `--accent`).
 
-`SiteFooter.tsx` — soft CTA with email `mailto:hello@dmc-labs.io`, GitHub link to `https://github.com/iamdavidmichaelmoore`, and nav links to Experiments / Notes / About. Copy in brand voice (independent builder lab). Include `id="contact"` if theme/footer anchors still matter.
+`SiteFooter.tsx` — soft CTA with email `mailto:hello@dmc-labs.io`, GitHub link to `https://github.com/iamdavidmichaelmoore`, and nav links to Experiments / Notes / About. Copy in brand voice (independent builder lab). Include `id="contact"` if theme/footer anchors still matter, and keep the GitHub link on the existing external-link safety contract: `target="_blank"` with `rel="noopener noreferrer"`.
 
 `MainLayout.tsx` — import `SiteNav` / `SiteFooter`; set `navigationItems` to Experiments, Notes, About only.
 
 Remove unused flyout assets usage (files under `public/flyouts/` may remain unreferenced).
+Keep the existing footer/navigation E2E coverage in Task 7 and extend it to assert the footer CTA and GitHub link attributes.
 
 - [ ] **Step 4: Run unit tests**
 
@@ -228,7 +251,7 @@ git commit -m "feat: replace wireframe nav/footer with editorial site chrome"
 - Modify: `src/data/site.ts` (export helpers)
 - Modify: `src/pages/index.astro`
 - Delete: `src/components/hero/TerminalHero.tsx`, `src/styles/terminal.css`, `tests/unit/TerminalHero.test.tsx`, hero README/examples if orphaned
-- Test: `tests/unit/LatestNoteHero.test.tsx`, `tests/unit/AlsoRunning.test.tsx`
+- Test: `tests/unit/LatestNoteHero.test.tsx`, `tests/unit/AlsoRunning.test.tsx`, `tests/unit/siteDataHelpers.test.tsx`
 
 **Interfaces:**
 - Consumes: `posts` / `works` from `src/data/site.ts`
@@ -239,6 +262,48 @@ git commit -m "feat: replace wireframe nav/footer with editorial site chrome"
   - `AlsoRunning({ experiments: Work[] })`
 
 - [ ] **Step 1: Write failing unit tests**
+
+```tsx
+// tests/unit/siteDataHelpers.test.tsx
+import { describe, expect, it } from 'vitest';
+import { getActiveExperiments, getLatestNote } from '../../src/data/site';
+
+describe('site data helpers', () => {
+  it('returns the first sluggable note and falls back to the first post when needed', () => {
+    expect(
+      getLatestNote([
+        { title: 'Draft only', date: '2024-07-16', description: 'No slug yet.' },
+        {
+          slug: 'self-correction-in-llms',
+          date: '2024-07-15',
+          title: 'Self-Correction in LLMs',
+          description: 'What held up in practice.',
+        },
+      ]),
+    ).toMatchObject({ slug: 'self-correction-in-llms' });
+
+    expect(
+      getLatestNote([
+        { title: 'Draft only', date: '2024-07-16', description: 'No slug yet.' },
+      ]),
+    ).toMatchObject({ title: 'Draft only' });
+  });
+
+  it('prefers active experiments, then fills remaining slots up to the limit', () => {
+    expect(
+      getActiveExperiments(
+        [
+          { id: 'a', category: 'Research', title: 'A', description: 'A', status: 'Paused' },
+          { id: 'b', category: 'Research', title: 'B', description: 'B', status: 'Active' },
+          { id: 'c', category: 'Research', title: 'C', description: 'C', status: 'Active' },
+          { id: 'd', category: 'Research', title: 'D', description: 'D', status: 'Archived' },
+        ],
+        3,
+      ).map(work => work.id),
+    ).toEqual(['b', 'c', 'a']);
+  });
+});
+```
 
 ```tsx
 // tests/unit/LatestNoteHero.test.tsx
@@ -300,7 +365,7 @@ describe('AlsoRunning', () => {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `npm run test:unit -- tests/unit/LatestNoteHero.test.tsx tests/unit/AlsoRunning.test.tsx`
+Run: `npm run test:unit -- tests/unit/siteDataHelpers.test.tsx tests/unit/LatestNoteHero.test.tsx tests/unit/AlsoRunning.test.tsx`
 Expected: FAIL (modules not found)
 
 - [ ] **Step 3: Implement helpers, components, and home page**
@@ -316,7 +381,7 @@ Expected: FAIL (modules not found)
 
 - [ ] **Step 4: Run unit tests**
 
-Run: `npm run test:unit -- tests/unit/LatestNoteHero.test.tsx tests/unit/AlsoRunning.test.tsx`
+Run: `npm run test:unit -- tests/unit/siteDataHelpers.test.tsx tests/unit/LatestNoteHero.test.tsx tests/unit/AlsoRunning.test.tsx`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -405,6 +470,14 @@ return Astro.redirect('/notes', 301);
 ```astro
 ---
 // src/pages/blog/[slug].astro
+import { posts } from '../../data/site';
+
+export function getStaticPaths() {
+  return posts
+    .filter((post): post is typeof post & { slug: string } => Boolean(post.slug))
+    .map(post => ({ params: { slug: post.slug } }));
+}
+
 const { slug } = Astro.params;
 return Astro.redirect(`/notes/${slug}`, 301);
 ---
@@ -486,9 +559,9 @@ git commit -m "feat: restyle about page for editorial lab notebook"
 - Consumes: `[data-reveal]` elements
 - Produces: IntersectionObserver reveal classes only; no `--scroll-illumination` updates; no `.scroll-telemetry` UI
 
-- [ ] **Step 1: Update e2e expectations first (failing against old behavior is OK)**
+- [ ] **Step 1: Rewrite the existing scrolling reveal e2e first (failing against old behavior is OK)**
 
-Remove or rewrite the test `scrolling reveals content and increases the ambient illumination` so it only asserts reveal/`is-visible` if still used, and does **not** require telemetry or illumination increases.
+Rewrite the existing test `scrolling reveals content and increases the ambient illumination` into a still-matching reveal-focused case so `npx playwright test tests/e2e/site.spec.ts -g "scrolling reveals"` always selects a real test. Assert reveal/`is-visible` only if still used, assert `.scroll-telemetry` has zero matches, and do **not** require telemetry or illumination increases.
 
 - [ ] **Step 2: Run the rewritten e2e (may pass or fail depending on DOM)**
 
@@ -497,7 +570,7 @@ Expected: aligns with new assertions after Step 3
 
 - [ ] **Step 3: Simplify ExperienceLayer**
 
-Keep reveal observer. Delete scroll illumination math and any telemetry DOM if present. Strip related CSS (`.scroll-telemetry`, `--scroll-illumination` background flourishes if they conflict with calm paper).
+Keep reveal observer. Define the hidden-to-visible reveal contract in CSS (`.scroll-ready [data-reveal]` starts slightly raised/down and transparent, `.is-visible` transitions to visible over 200–300ms) with the existing reduced-motion override. Delete scroll illumination math and any telemetry DOM if present. Strip related CSS (`.scroll-telemetry`, `--scroll-illumination` background flourishes if they conflict with calm paper).
 
 - [ ] **Step 4: Re-run e2e subset**
 
@@ -533,6 +606,7 @@ test('home is essay-led and free of terminal chrome', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/We try things/i);
   await expect(page.locator('.terminal')).toHaveCount(0);
+  await expect(page.locator('.scroll-telemetry')).toHaveCount(0);
   await expect(page.getByText(/latest note/i)).toBeVisible();
   await expect(page.getByText(/also running/i)).toBeVisible();
   await expect(page.locator('nav a[href="/experiments"]')).toBeVisible();
@@ -544,17 +618,22 @@ test('legacy work and blog paths redirect', async ({ page }) => {
   await expect(page).toHaveURL(/\/experiments$/);
   await page.goto('/blog');
   await expect(page).toHaveURL(/\/notes$/);
+  await page.goto('/blog/self-correction-in-llms');
+  await expect(page).toHaveURL(/\/notes\/self-correction-in-llms$/);
 });
 
 test('theme toggle switches clay-on-paper themes', async ({ page }) => {
   await page.goto('/');
   const toggle = page.getByRole('button', { name: /switch to .* theme/i });
+  const initialTheme = await page.locator('html').getAttribute('data-theme');
   await toggle.click();
-  await expect.poll(async () => page.locator('html').getAttribute('data-theme')).toMatch(/light|dark/);
+  await expect
+    .poll(async () => page.locator('html').getAttribute('data-theme'))
+    .toBe(initialTheme === 'dark' ? 'light' : 'dark');
 });
 ```
 
-Remove nav flyout width assertions. Update internal navigation tests to `/experiments` and `/notes`.
+Remove nav flyout width assertions. Update internal navigation tests to `/experiments` and `/notes`. Extend footer assertions to cover the email CTA plus the GitHub link `target="_blank"`/`rel="noopener noreferrer"` contract.
 
 - [ ] **Step 2: Run full unit + e2e + build**
 
