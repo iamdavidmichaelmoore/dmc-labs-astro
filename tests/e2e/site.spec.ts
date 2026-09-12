@@ -55,7 +55,6 @@ test('scrolling reveals content and increases the ambient illumination', async (
 
 for (const [path, heading] of [
   ['/work', 'WORK'],
-  ['/about', 'THE LAB'],
   ['/blog', 'LOG'],
 ]) {
   test(`the ${path} route renders its page`, async ({ page }) => {
@@ -64,6 +63,12 @@ for (const [path, heading] of [
     await expect(page.getByRole('heading', { name: heading })).toBeVisible();
   });
 }
+
+test('the about page tells the lab story without a photo placeholder', async ({ page }) => {
+  await page.goto('/about');
+  await expect(page.getByRole('heading', { name: /about|the lab|dmc labs/i })).toBeVisible();
+  await expect(page.locator('.photo-placeholder')).toHaveCount(0);
+});
 
 test('the work filter narrows the displayed research by category', async ({ page }) => {
   await page.goto('/work');
