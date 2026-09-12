@@ -33,6 +33,10 @@
 | File | Responsibility |
 |------|----------------|
 | `src/styles/global.css` | Design tokens, typography, shared layout/utilities for editorial look |
+| `package.json` | Defines `npm test`, `npm run test:unit`, and `npm run test:e2e` scripts |
+| `vitest.config.ts` | Unit-test discovery/configuration for `tests/unit/**/*.test.tsx` |
+| `playwright.config.ts` | End-to-end test configuration |
+| `tests/setup.ts` | Shared Vitest setup for DOM assertions |
 | `src/styles/terminal.css` | Delete after TerminalHero removal (or leave unused only if something still imports — prefer delete) |
 | `src/components/layout/SiteNav.tsx` | Quiet masthead nav (replaces `WireframeNav.tsx`) |
 | `src/components/layout/SiteFooter.tsx` | Soft footer CTA + links (replaces `WireframeFooter.tsx`) |
@@ -61,9 +65,48 @@
 
 ---
 
+### Task 0: Test harness and command prerequisite
+
+**Files:**
+- Modify/Create: `package.json`
+- Modify/Create: `vitest.config.ts`
+- Modify/Create: `playwright.config.ts`
+- Modify/Create: `tests/setup.ts`
+- Create: initial `tests/unit/` and `tests/e2e/` scaffolding only if missing
+
+**Interfaces:**
+- Produces documented `npm test`, `npm run test:unit`, and `npm run test:e2e` commands before later tasks depend on them
+- Produces focused invocation patterns used throughout this plan:
+  - `npm run test:unit -- tests/unit/<name>.test.tsx`
+  - `npx playwright test tests/e2e/site.spec.ts -g "<test name>"`
+
+- [ ] **Step 1: Add or verify the test runner/scripts**
+
+If the branch does not already have the required harness, introduce Vitest + Playwright, define the scripts in `package.json`, and document the focused invocation patterns above in the same change. If those commands already exist, verify they match this plan and treat this task as complete without extra edits.
+
+- [ ] **Step 2: Run the smoke validation commands**
+
+Run:
+
+```bash
+npm run test:unit -- --help
+npx playwright test --help
+```
+
+Expected: both commands resolve successfully so later tasks can rely on them.
+
+- [ ] **Step 3: Commit if needed**
+
+```bash
+git add package.json vitest.config.ts playwright.config.ts tests/setup.ts tests
+git commit -m "test: add automated test harness commands"
+```
+
+---
+
 ### Task 1: Design tokens and typography foundation
 
-**Prerequisite:** Confirm the repository already exposes `npm test`, `npm run test:unit`, and `npm run test:e2e`. If not, add and document those scripts first so the focused commands in this plan are executable.
+**Prerequisite:** Complete Task 0 first so the focused test commands used below are executable.
 
 **Files:**
 - Modify: `src/styles/global.css`
