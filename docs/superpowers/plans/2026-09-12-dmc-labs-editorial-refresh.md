@@ -413,6 +413,7 @@ git commit -m "feat: rebuild home as essay-led editorial layout"
 - [ ] **Step 1: Write failing ExperimentCard unit test**
 
 ```tsx
+// tests/unit/ExperimentCard.test.tsx
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { ExperimentCard } from '../../src/components/experiments/ExperimentCard';
