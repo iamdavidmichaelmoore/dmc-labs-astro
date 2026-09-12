@@ -1,53 +1,62 @@
 @import "tailwindcss";
 @import './terminal.css';
+@import '@fontsource/fraunces/latin-400.css';
+@import '@fontsource/fraunces/latin-600.css';
+@import '@fontsource/fraunces/latin-700.css';
+@import '@fontsource/fraunces/latin-400-italic.css';
+@import '@fontsource/source-sans-3/latin-400.css';
+@import '@fontsource/source-sans-3/latin-600.css';
+@import '@fontsource/source-sans-3/latin-700.css';
 
 @theme {
-  --font-display: 'Iosevka', 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-utility: 'Iosevka', 'JetBrains Mono', 'Fira Code', monospace;
+  --font-display: 'Fraunces', 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-body: 'Source Sans 3', 'Source Sans Pro', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-utility: ui-monospace, 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
 }
 
 @custom-variant light (&:where([data-theme='light'], [data-theme='light'] *));
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 :root {
   --scroll-illumination: 0.025;
-  color-scheme: dark;
-  /* Dark warm-stone theme */
-  --bg-color: #120f09;
-  --surface: #1d1a14;
-  --surface-elevated: #262219;
-  --surface-border: #312d27;
+  color-scheme: light;
+  /* Editorial Lab Notebook — light (paper) default */
+  --bg-color: #F7F1E8;
+  --surface: #EFE7DB;
+  --surface-elevated: #FBF6EE;
+  --surface-border: #D4CBBA;
 
   /* Typography */
-  --text-primary: #f8f3ed;
-  --text-secondary: #938f85;
-  --text-faint: #6f695f;
+  --text-primary: #1C1915;
+  --text-secondary: #5F594E;
+  --text-faint: #8A8276;
 
-  /* Accent — single wireframe accent */
-  --accent: #29c940;
-  --accent-dim: #29c940;
-  --accent-coral: #ff5f56;
-  --accent-amber: #ffbd2f;
+  /* Accent — clay */
+  --accent: #C45C26;
+  --accent-dim: #A64C1F;
+  --accent-coral: #D96E64;
+  --accent-amber: #D9AB4B;
 
   /* Font stacks */
-  --font-display: 'Iosevka', 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-utility: 'Iosevka', 'JetBrains Mono', 'Fira Code', monospace;
+  --font-display: 'Fraunces', 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-body: 'Source Sans 3', 'Source Sans Pro', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-utility: ui-monospace, 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
 }
 
-:root[data-theme='light'] {
-  color-scheme: light;
-  --bg-color: #f8f3ed;
-  --surface: #eee8df;
-  --surface-elevated: #fffaf5;
-  --surface-border: #918972;
-  --text-primary: oklch(0.22 0.01 85);
-  --text-secondary: #5f594e;
-  --text-faint: #918972;
-  --accent-coral: #d96e64;
-  --accent-amber: #d9ab4b;
-  --accent: #4db356;
-  --accent-dim: #4db356;
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  /* Editorial Lab Notebook — dark */
+  --bg-color: #141210;
+  --surface: #1E1B17;
+  --surface-elevated: #262219;
+  --surface-border: #3A342C;
+  --text-primary: #F3EDE4;
+  --text-secondary: #A39E94;
+  --text-faint: #7A746A;
+  --accent: #D96A32;
+  --accent-dim: #C45C26;
+  --accent-coral: #E08A82;
+  --accent-amber: #E0BC6A;
 }
 
 /* Reset */
@@ -132,15 +141,19 @@ nav.nav-scrolled {
   width: 100%;
 }
 
+.brand-mark-dark {
+  display: none !important;
+}
+
 .brand-mark-light {
+  display: block !important;
+}
+
+:root[data-theme='dark'] .brand-mark-light {
   display: none !important;
 }
 
-:root[data-theme='light'] .brand-mark-dark {
-  display: none !important;
-}
-
-:root[data-theme='light'] .brand-mark-light {
+:root[data-theme='dark'] .brand-mark-dark {
   display: block !important;
 }
 
@@ -662,8 +675,8 @@ p {
 
 .article-body ul,
 .article-body ol {
-  border: 1px solid rgb(41 201 64 / 18%);
-  background: rgb(26 26 32 / 52%);
+  border: 1px solid color-mix(in srgb, var(--surface-border) 70%, transparent);
+  background: color-mix(in srgb, var(--surface-elevated) 72%, transparent);
   backdrop-filter: blur(12px) saturate(80%);
   -webkit-backdrop-filter: blur(12px) saturate(80%);
   padding: 16px 24px 16px 40px;
@@ -755,8 +768,8 @@ p {
 
 .article-body table {
   border-collapse: collapse;
-  border: 1px solid rgb(41 201 64 / 22%);
-  background: rgb(26 26 32 / 52%);
+  border: 1px solid color-mix(in srgb, var(--surface-border) 75%, transparent);
+  background: color-mix(in srgb, var(--surface-elevated) 72%, transparent);
   backdrop-filter: blur(12px) saturate(80%);
   -webkit-backdrop-filter: blur(12px) saturate(80%);
   font-family: var(--font-utility);
@@ -768,7 +781,7 @@ p {
 
 .article-body th,
 .article-body td {
-  border: 1px solid rgb(41 201 64 / 16%);
+  border: 1px solid color-mix(in srgb, var(--surface-border) 55%, transparent);
   padding: 12px;
   text-align: left;
 }
@@ -818,17 +831,17 @@ button:focus-visible {
 }
 
 .theme-toggle:hover {
-  background: rgb(41 201 64 / 12%);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: var(--text-primary);
 }
 
-:root[data-theme='light'] .theme-toggle:hover {
-  background: rgb(41 201 64 / 10%);
+:root[data-theme='dark'] .theme-toggle:hover {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 /* Footer */
 .footer {
-  background-color: var(--surface);
+  background-color: #E7DECE;
   text-align: center;
   padding: 82px 20px 58px;
   border-top: 1px solid var(--surface-border);
@@ -888,21 +901,9 @@ button:focus-visible {
   font-size: 0.7rem;
 }
 
-:root[data-theme='light'] .footer {
-  background-color: #e7dece;
+:root[data-theme='dark'] .footer {
+  background-color: var(--surface);
   border-top-color: var(--surface-border);
-}
-
-:root[data-theme='light'] .article-body ul,
-:root[data-theme='light'] .article-body ol,
-:root[data-theme='light'] .article-body table {
-  border-color: color-mix(in srgb, var(--surface-border) 65%, transparent);
-  background: color-mix(in srgb, var(--surface-elevated) 65%, transparent);
-}
-
-:root[data-theme='light'] .article-body th,
-:root[data-theme='light'] .article-body td {
-  border-color: color-mix(in srgb, var(--surface-border) 55%, transparent);
 }
 
 .footer-content {
