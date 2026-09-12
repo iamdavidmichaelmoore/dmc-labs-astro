@@ -29,28 +29,13 @@ test('the home page is styled, hydrated, and fully visible', async ({ page }) =>
   expect(browserErrors).toEqual([]);
 });
 
-test('scrolling reveals content and increases the ambient illumination', async ({ page }) => {
+test('scrolling reveals content quietly', async ({ page }) => {
   await page.goto('/');
 
-  const insetNav = await page.locator('nav').boundingBox();
-  const illuminationBefore = await page.evaluate(() =>
-    getComputedStyle(document.documentElement).getPropertyValue('--scroll-illumination'),
-  );
+  await expect(page.locator('.scroll-telemetry')).toHaveCount(0);
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await expect(page.locator('nav')).toHaveClass(/nav-scrolled/);
-  const flushNav = await page.locator('nav').boundingBox();
-  expect(insetNav).not.toBeNull();
-  expect(flushNav).not.toBeNull();
-  expect(insetNav!.x).toBeGreaterThan(0);
-  expect(flushNav!.x).toBe(0);
-  await expect(page.locator('#featured-work')).toHaveClass(/is-visible/);
-
-  await expect.poll(() => page.evaluate(() =>
-    Number(getComputedStyle(document.documentElement).getPropertyValue('--scroll-illumination')),
-  )).toBeGreaterThan(Number(illuminationBefore));
-  await expect(page.locator('.footer')).toHaveCSS('background-image', 'none');
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await expect(page.locator('nav')).not.toHaveClass(/nav-scrolled/);
+  await expect(page.locator('#contact[data-reveal]')).toHaveClass(/is-visible/);
+  await expect(page.locator('.scroll-telemetry')).toHaveCount(0);
 });
 
 for (const [path, heading] of [
