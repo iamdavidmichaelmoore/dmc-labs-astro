@@ -841,7 +841,7 @@ button:focus-visible {
 
 /* Footer */
 .footer {
-  background-color: #E7DECE;
+  background-color: var(--surface);
   text-align: center;
   padding: 82px 20px 58px;
   border-top: 1px solid var(--surface-border);
