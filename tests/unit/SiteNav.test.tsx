@@ -14,8 +14,11 @@ describe('SiteNav', () => {
       />,
     );
 
-    expect(screen.getByRole('link', { name: /experiments/i })).toHaveAttribute('href', '/experiments');
+    const experiments = screen.getByRole('link', { name: /experiments/i });
+    expect(experiments).toHaveAttribute('href', '/experiments');
+    expect(experiments).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: /notes/i })).toHaveAttribute('href', '/notes');
+    expect(screen.getByRole('link', { name: /notes/i })).not.toHaveAttribute('aria-current');
     expect(screen.getByRole('link', { name: /about/i })).toHaveAttribute('href', '/about');
     expect(document.querySelector('.nav-flyout')).toBeNull();
   });

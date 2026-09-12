@@ -16,7 +16,7 @@ describe('ExperimentCard', () => {
       />,
     );
 
-    expect(screen.getByRole('heading', { name: 'Contextual Query Engine' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Contextual Query Engine' })).toBeInTheDocument();
     expect(screen.getByText('Open-source query system.')).toBeInTheDocument();
     expect(screen.getByText('Active')).toBeInTheDocument();
   });

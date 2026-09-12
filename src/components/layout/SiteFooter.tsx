@@ -8,7 +8,7 @@ export function SiteFooter() {
         <p className="mx-auto mb-2 max-w-xl text-[0.95rem] text-[var(--text-secondary)]">
           DMC Labs is an independent builder lab — experiments, notes, and what we learn along the way.
         </p>
-        <div className="footer-links">
+        <div className="footer-links flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
           <a href="mailto:hello@dmc-labs.io">Email the lab</a>
           <a href="https://github.com/iamdavidmichaelmoore" rel="noopener noreferrer" target="_blank">
             GitHub

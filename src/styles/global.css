@@ -18,19 +18,15 @@
 
 :root {
   color-scheme: light;
-  /* Editorial Lab Notebook — light (paper) default */
-  --bg-color: #F7F1E8;
-  --surface: #EFE7DB;
+  /* Core palette (--bg-color, --text-primary, --surface, --accent) injected from themeTokens via ThemeInit.astro */
   --surface-elevated: #FBF6EE;
   --surface-border: #D4CBBA;
 
   /* Typography */
-  --text-primary: #1C1915;
   --text-secondary: #5F594E;
   --text-faint: #8A8276;
 
-  /* Accent — clay */
-  --accent: #C45C26;
+  /* Accent companions — clay */
   --accent-dim: #A64C1F;
   --accent-coral: #D96E64;
   --accent-amber: #D9AB4B;
@@ -43,15 +39,11 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  /* Editorial Lab Notebook — dark */
-  --bg-color: #141210;
-  --surface: #1E1B17;
+  /* Core palette from themeTokens via ThemeInit.astro; companions stay here */
   --surface-elevated: #262219;
   --surface-border: #3A342C;
-  --text-primary: #F3EDE4;
   --text-secondary: #A39E94;
   --text-faint: #7A746A;
-  --accent: #D96A32;
   --accent-dim: #C45C26;
   --accent-coral: #E08A82;
   --accent-amber: #E0BC6A;
@@ -161,8 +153,11 @@ nav.nav-scrolled {
 }
 
 .scroll-ready [data-reveal] {
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 250ms ease,
+    transform 250ms ease;
 }
 
 .scroll-ready [data-reveal].is-visible {
@@ -883,8 +878,10 @@ button:focus-visible {
 
 .footer-links {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 24px;
+  align-items: center;
+  gap: 12px 16px;
   margin: 24px 0;
 }
 

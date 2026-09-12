@@ -11,3 +11,15 @@ export const darkTheme = {
   surface: '#1E1B17',
   accent: '#D96A32',
 } as const;
+
+export type ThemePalette = typeof lightTheme | typeof darkTheme;
+
+/** Map a palette onto the four core CSS custom properties ThemeInit injects. */
+export function themeToCssVars(theme: ThemePalette): Record<string, string> {
+  return {
+    '--bg-color': theme.bg,
+    '--text-primary': theme.ink,
+    '--surface': theme.surface,
+    '--accent': theme.accent,
+  };
+}

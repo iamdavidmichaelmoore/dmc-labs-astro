@@ -30,6 +30,7 @@ export function SiteNav({ items = [] }: SiteNavProps) {
             <a
               key={item.href}
               href={item.href}
+              aria-current={item.active ? 'page' : undefined}
               className={`font-body text-sm no-underline transition-colors hover:text-[var(--accent)] focus-visible:text-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] max-md:whitespace-nowrap max-md:text-[0.8rem] ${
                 item.active
                   ? 'border-b border-[var(--accent)] text-[var(--text-primary)]'

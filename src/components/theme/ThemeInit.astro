@@ -1,7 +1,17 @@
 ---
-/* Inline before paint: pairs with light-first tokens in global.css.
-   Storage key dmc-labs-theme; first visit follows prefers-color-scheme. */
+import { darkTheme, lightTheme, themeToCssVars } from '../../styles/themeTokens';
+
+const lightVars = themeToCssVars(lightTheme);
+const darkVars = themeToCssVars(darkTheme);
+
+const formatBlock = (selector: string, vars: Record<string, string>) =>
+  `${selector} {\n${Object.entries(vars)
+    .map(([key, value]) => `  ${key}: ${value};`)
+    .join('\n')}\n}`;
+
+const themeCss = [formatBlock(':root', lightVars), formatBlock(":root[data-theme='dark']", darkVars)].join('\n');
 ---
+<style is:inline set:html={themeCss}></style>
 <script is:inline>
   (() => {
     const storedTheme = localStorage.getItem('dmc-labs-theme');
