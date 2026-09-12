@@ -128,3 +128,18 @@ export const posts: BlogPost[] = [
     description: 'Writing about the problem space: researchers spend too much time searching literature and not enough time doing actual research. We built tools to flip that ratio.',
   },
 ];
+
+export function getLatestNote(posts: BlogPost[]): BlogPost {
+  const withSlug = posts.find(post => Boolean(post.slug));
+  return withSlug ?? posts[0];
+}
+
+export function getActiveExperiments(works: Work[], limit = 3): Work[] {
+  const active = works.filter(work => work.status === 'Active');
+  if (active.length >= limit) {
+    return active.slice(0, limit);
+  }
+
+  const remaining = works.filter(work => work.status !== 'Active');
+  return [...active, ...remaining].slice(0, limit);
+}
