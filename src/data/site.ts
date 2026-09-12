@@ -249,8 +249,11 @@ export function formatNoteDate(isoDate: string): string {
 }
 
 export function getLatestNote(posts: BlogPost[]): BlogPost {
+  if (posts.length === 0) {
+    throw new Error('getLatestNote requires at least one post');
+  }
   const withSlug = posts.find(post => Boolean(post.slug));
-  return withSlug ?? posts[0];
+  return withSlug ?? posts[0]!;
 }
 
 export function getActiveExperiments(works: Work[], limit = 3): Work[] {

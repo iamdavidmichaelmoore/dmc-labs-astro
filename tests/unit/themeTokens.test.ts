@@ -7,7 +7,7 @@ describe('themeTokens', () => {
       bg: '#F7F1E8',
       ink: '#1C1915',
       surface: '#EFE7DB',
-      accent: '#C45C26',
+      accent: '#A64C1F',
     });
     expect(darkTheme).toEqual({
       bg: '#141210',
@@ -20,7 +20,7 @@ describe('themeTokens', () => {
       '--bg-color': '#F7F1E8',
       '--text-primary': '#1C1915',
       '--surface': '#EFE7DB',
-      '--accent': '#C45C26',
+      '--accent': '#A64C1F',
     });
     expect(themeToCssVars(darkTheme)).toEqual({
       '--bg-color': '#141210',

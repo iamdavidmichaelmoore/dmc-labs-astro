@@ -2,7 +2,7 @@ export const lightTheme = {
   bg: '#F7F1E8',
   ink: '#1C1915',
   surface: '#EFE7DB',
-  accent: '#C45C26',
+  accent: '#A64C1F',
 } as const;
 
 export const darkTheme = {
